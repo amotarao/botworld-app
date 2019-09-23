@@ -2,31 +2,33 @@ import { WebClient } from '@slack/web-api';
 import { getBotsByChannel } from '../modules/firestore';
 import { env } from '../modules/env';
 
+interface SlackEventMessageInterface {
+  client_msg_id: string; // '2339a461-a924-4da6-baea-3c8300cddfac'
+  type: string; // 'message'
+  text: string;
+  user: string;
+  ts: string; // '1569226155.000300'
+  team: string;
+  channel: string;
+  event_ts: string; // '1569226155.000300'
+  channel_type: string; // 'channel'
+}
+
+interface SlackEventBotMessageInterface {
+  type: string; // 'message'
+  subtype: string; // 'bot_message'
+  text: string;
+  ts: string; // '1569226155.000300'
+  username: string;
+  icons: { emoji: string };
+  bot_id: string;
+  channel: string;
+  event_ts: string; // '1569226155.000300'
+  channel_type: string; // 'mpim'
+}
+
 interface BotHandlerArguments {
-  event:
-    | {
-        type: string; // 'message'
-        subtype: string; // 'bot_message'
-        text: string;
-        ts: string; // '1569226155.000300'
-        username: string;
-        icons: { emoji: string };
-        bot_id: string;
-        channel: string;
-        event_ts: string; // '1569226155.000300'
-        channel_type: string; // 'mpim'
-      }
-    | {
-        client_msg_id: string; // '2339a461-a924-4da6-baea-3c8300cddfac'
-        type: string; // 'message'
-        text: string;
-        user: string;
-        ts: string; // '1569226155.000300'
-        team: string;
-        channel: string;
-        event_ts: string; // '1569226155.000300'
-        channel_type: string; // 'channel'
-      };
+  event: SlackEventMessageInterface | SlackEventBotMessageInterface;
 }
 
 export async function botHandler({
