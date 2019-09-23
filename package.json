@@ -1,0 +1,7 @@
+{
+  "name": "botworld-app",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Amon Sawamura <amon.sawamura@gmail.com>",
+  "license": "MIT"
+}
