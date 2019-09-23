@@ -9,6 +9,11 @@ export async function addQueue(event: SlackEventInterface): Promise<void> {
   return;
 }
 
+export async function deleteQueue(id: string): Promise<void> {
+  await queuesCollection.doc(id).delete();
+  return;
+}
+
 export async function getBotsByChannel(channel: string): Promise<BotsData[]> {
   const query = botsCollection.where('target_channels', 'array-contains', channel);
   const snapshot = await query.get();
