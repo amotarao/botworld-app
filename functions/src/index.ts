@@ -3,7 +3,7 @@ import slackHandler from './https/slack';
 
 const httpsRuntimeOptions: functions.RuntimeOptions = {
   timeoutSeconds: 10,
-  memory: '2GB',
+  memory: '512MB',
 };
 
 export const slack = functions

@@ -1,6 +1,6 @@
 import * as functions from 'firebase-functions';
 import { env } from '../modules/env';
-import { botHandler } from '../handlers/bot';
+import { addQueueHandler } from '../handlers/addQueue';
 
 export default function(req: functions.https.Request, resp: functions.Response): void {
   (async () => {
@@ -10,10 +10,8 @@ export default function(req: functions.https.Request, resp: functions.Response):
 
     switch (req.body.type) {
       case 'event_callback': {
-        const { status, text } = await botHandler({
-          event: req.body.event,
-        });
-        resp.status(status).send(text);
+        await addQueueHandler(req.body.event);
+        resp.status(200).end();
         return;
       }
       case 'url_verification': {
