@@ -36,3 +36,8 @@ export interface BotsData {
   private: boolean;
   team: FirebaseFirestore.DocumentReference;
 }
+
+export interface FirestoreDocInterface<T> {
+  id: string;
+  data: T;
+}

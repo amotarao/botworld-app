@@ -1,5 +1,5 @@
 import { firestore } from '../modules/firebase';
-import { SlackEventInterface, BotsData } from '../utils/interfaces';
+import { SlackEventInterface, BotsData, FirestoreDocInterface } from '../utils/interfaces';
 
 const botsCollection = firestore.collection('bots');
 const queuesCollection = firestore.collection('queues');
@@ -14,8 +14,11 @@ export async function deleteQueue(id: string): Promise<void> {
   return;
 }
 
-export async function getBotsByChannel(channel: string): Promise<BotsData[]> {
+export async function getBotsByChannel(channel: string): Promise<FirestoreDocInterface<BotsData>[]> {
   const query = botsCollection.where('target_channels', 'array-contains', channel);
   const snapshot = await query.get();
-  return snapshot.docs.map((doc) => doc.data() as BotsData);
+  return snapshot.docs.map((doc) => ({
+    id: doc.id,
+    data: doc.data() as BotsData,
+  }));
 }

@@ -33,9 +33,9 @@ export async function botHandler(
     return { status: 404, text: 'Bot Not Found' };
   }
 
-  const results = matchBots.map((bot): boolean => {
+  const results = matchBots.map(async ({ data }): boolean => {
     // ループ防止
-    if ('username' in event && event.username === bot.username) {
+    if ('username' in event && event.username === data.username) {
       return false;
     }
 
@@ -45,8 +45,8 @@ export async function botHandler(
           await client.chat.postMessage({
             channel: event.channel,
             text,
-            icon_emoji: bot.icon_emoji,
-            username: bot.username,
+            icon_emoji: data.icon_emoji,
+            username: data.username,
           });
         })().catch((error) => {
           console.error(error);
@@ -54,7 +54,7 @@ export async function botHandler(
       },
     };
 
-    const func = new Function('slack', `'use strict'; {${bot.code}}`);
+    const func = new Function('slack', `'use strict'; {${data.code}}`);
 
     try {
       func(slack);
