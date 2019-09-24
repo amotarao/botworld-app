@@ -22,7 +22,7 @@ export async function botHandler(
   const client = new WebClient(env.tmp_slack_bot_token);
 
   const matchBots = bots.filter((bot) => {
-    const pattern = new RegExp(bot.pattern);
+    const pattern = new RegExp(bot.data.pattern);
     if (event.text.match(pattern) === null) {
       return false;
     }
@@ -33,48 +33,50 @@ export async function botHandler(
     return { status: 404, text: 'Bot Not Found' };
   }
 
-  const results = matchBots.map(async ({ id, data }): boolean => {
-    // ループ防止
-    if ('username' in event && event.username === data.username) {
-      return false;
-    }
+  const results = matchBots.map(
+    async ({ id, data }): Promise<boolean> => {
+      // ループ防止
+      if ('username' in event && event.username === data.username) {
+        return false;
+      }
 
-    const api = {
-      slack: {
-        message: event.text,
-        post: (text: string) => {
-          (async () => {
-            await client.chat.postMessage({
-              channel: event.channel,
-              text,
-              icon_emoji: data.icon_emoji,
-              username: data.username,
+      const api = {
+        slack: {
+          message: event.text,
+          post: (text: string) => {
+            (async () => {
+              await client.chat.postMessage({
+                channel: event.channel,
+                text,
+                icon_emoji: data.icon_emoji,
+                username: data.username,
+              });
+            })().catch((error) => {
+              console.error(error);
             });
-          })().catch((error) => {
-            console.error(error);
-          });
+          },
         },
-      },
-      storage: { ...data.storage },
-    };
+        storage: { ...data.storage },
+      };
 
-    const func = new Function('api', `'use strict'; {${data.code}}`);
+      const func = new Function('api', `'use strict'; {${data.code}}`);
 
-    try {
-      await func(api);
-    } catch (error) {
-      console.error(error);
-      return false;
+      try {
+        await func(api);
+      } catch (error) {
+        console.error(error);
+        return false;
+      }
+
+      if (JSON.stringify(data.storage) !== JSON.stringify(api.storage)) {
+        await setBotWithMerge(id, {
+          storage: api.storage,
+        });
+      }
+
+      return true;
     }
-
-    if (JSON.stringify(data.storage) !== JSON.stringify(api.storage)) {
-      await setBotWithMerge(id, {
-        storage: api.storage,
-      });
-    }
-
-    return true;
-  });
+  );
 
   const result = await Promise.all(results);
 
