@@ -1,4 +1,4 @@
-import { firestore } from "../modules/firebase";
+import { firestore } from '../modules/firebase';
 
 export interface SlackEventMessageInterface {
   client_msg_id: string; // '2339a461-a924-4da6-baea-3c8300cddfac'
