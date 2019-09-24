@@ -1,5 +1,5 @@
 import { WebClient } from '@slack/web-api';
-import { getBotsByChannel } from '../modules/firestore';
+import { getBotsByChannel, setBotWithMerge } from '../modules/firestore';
 import { env } from '../modules/env';
 import { SlackEventInterface } from '../utils/interfaces';
 
@@ -33,34 +33,44 @@ export async function botHandler(
     return { status: 404, text: 'Bot Not Found' };
   }
 
-  const results = matchBots.map(async ({ data }): boolean => {
+  const results = matchBots.map(async ({ id, data }): boolean => {
     // ループ防止
     if ('username' in event && event.username === data.username) {
       return false;
     }
 
-    const slack = {
-      post: (text: string) => {
-        (async () => {
-          await client.chat.postMessage({
-            channel: event.channel,
-            text,
-            icon_emoji: data.icon_emoji,
-            username: data.username,
+    const api = {
+      slack: {
+        message: event.text,
+        post: (text: string) => {
+          (async () => {
+            await client.chat.postMessage({
+              channel: event.channel,
+              text,
+              icon_emoji: data.icon_emoji,
+              username: data.username,
+            });
+          })().catch((error) => {
+            console.error(error);
           });
-        })().catch((error) => {
-          console.error(error);
-        });
+        },
       },
+      storage: { ...data.storage },
     };
 
-    const func = new Function('slack', `'use strict'; {${data.code}}`);
+    const func = new Function('api', `'use strict'; {${data.code}}`);
 
     try {
-      func(slack);
+      await func(api);
     } catch (error) {
       console.error(error);
       return false;
+    }
+
+    if (JSON.stringify(data.storage) !== JSON.stringify(api.storage)) {
+      await setBotWithMerge(id, {
+        storage: api.storage,
+      });
     }
 
     return true;

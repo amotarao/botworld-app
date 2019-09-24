@@ -22,3 +22,9 @@ export async function getBotsByChannel(channel: string): Promise<FirestoreDocInt
     data: doc.data() as BotsData,
   }));
 }
+
+export async function setBotWithMerge(id: string, data: Partial<BotsData>): Promise<void> {
+  const doc = botsCollection.doc(id);
+  await doc.set(data, { merge: true });
+  return;
+}

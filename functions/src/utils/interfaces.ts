@@ -32,6 +32,7 @@ export interface BotsData {
   icon_emoji: string;
   pattern: string;
   code: string;
+  storage: any;
   target_channels: string[];
   private: boolean;
   team: FirebaseFirestore.DocumentReference;
