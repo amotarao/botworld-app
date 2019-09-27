@@ -1,4 +1,5 @@
 import { WebClient } from '@slack/web-api';
+import { cloneDeep, isEqual } from 'lodash';
 import { getBotsByChannel, setBotWithMerge } from '../modules/firestore';
 import { env } from '../modules/env';
 import { SlackEventInterface } from '../utils/interfaces';
@@ -68,7 +69,7 @@ export async function botHandler(
             });
           },
         },
-        storage: { ...data.storage },
+        storage: cloneDeep(data.storage),
       };
 
       const func = new Function('api', `'use strict'; {${data.code}}`);
@@ -80,7 +81,7 @@ export async function botHandler(
         return false;
       }
 
-      if (JSON.stringify(data.storage) !== JSON.stringify(api.storage)) {
+      if (!isEqual(data.storage, api.storage)) {
         await setBotWithMerge(id, {
           storage: api.storage,
         });
