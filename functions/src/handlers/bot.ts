@@ -56,6 +56,17 @@ export async function botHandler(
               console.error(error);
             });
           },
+          addReaction: (emoji: string) => {
+            (async () => {
+              await client.reactions.add({
+                channel: event.channel,
+                timestamp: event.ts,
+                name: emoji.replace(/:/g, ''),
+              });
+            })().catch((error) => {
+              console.error(error);
+            });
+          },
         },
         storage: { ...data.storage },
       };
