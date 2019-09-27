@@ -43,6 +43,7 @@ export async function botHandler(
       const api = {
         slack: {
           message: event.text,
+          user: 'user' in event ? event.user : 'UNKNOWN',
           post: (text: string) => {
             (async () => {
               await client.chat.postMessage({
