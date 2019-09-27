@@ -44,13 +44,24 @@ export async function botHandler(
         slack: {
           message: event.text,
           user: 'user' in event ? event.user : 'UNKNOWN',
-          post: (text: string) => {
+          postMessage: (text: string) => {
             (async () => {
               await client.chat.postMessage({
                 channel: event.channel,
                 text,
                 icon_emoji: data.icon_emoji,
                 username: data.username,
+              });
+            })().catch((error) => {
+              console.error(error);
+            });
+          },
+          addReaction: (emoji: string) => {
+            (async () => {
+              await client.reactions.add({
+                channel: event.channel,
+                timestamp: event.ts,
+                name: emoji.replace(/:/g, ''),
               });
             })().catch((error) => {
               console.error(error);
